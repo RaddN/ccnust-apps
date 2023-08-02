@@ -3,6 +3,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:ccnust/backendhelper.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -25,7 +26,6 @@ class _TransportPageState extends State<TransportPage> {
   final mapController = MapController();
   double? mylatitude;
   double? mylongitude;
-  final url ="https://ccnust.onrender.com/api/users/";
 void getmylocation()async{
   Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
   setState(() {
@@ -41,7 +41,7 @@ var busdetails;
       oneSec,
           (Timer timer) async{
         final SharedPreferences prefs = await SharedPreferences.getInstance();
-        final response = await post(Uri.parse("${url}buslocation"),body: {
+        final response = await post(Uri.parse("${backendurl}buslocation"),body: {
           "token":prefs.getString('token')
         });
         final jsonData = jsonDecode(response.body);
