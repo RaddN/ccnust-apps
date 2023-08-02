@@ -1,6 +1,9 @@
+// ignore_for_file: prefer_typing_uninitialized_variables
+
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -9,6 +12,8 @@ import 'package:http/http.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 class TransportPage extends StatefulWidget {
+  const TransportPage({super.key});
+
 
   @override
   State<TransportPage> createState() => _TransportPageState();
@@ -31,19 +36,21 @@ void getmylocation()async{
 var busdetails;
   late Timer _timer;
   void startTimer() {
-    const oneSec = const Duration(seconds: 1);
-    _timer = new Timer.periodic(
+    const oneSec = Duration(seconds: 1);
+    _timer = Timer.periodic(
       oneSec,
           (Timer timer) async{
         final SharedPreferences prefs = await SharedPreferences.getInstance();
-        final response = await post(Uri.parse(url+"buslocation"),body: {
+        final response = await post(Uri.parse("${url}buslocation"),body: {
           "token":prefs.getString('token')
         });
         final jsonData = jsonDecode(response.body);
         setState(() {
           busdetails = jsonData;
         });
-        print(double.parse(busdetails[1]["latitude"]));
+        if (kDebugMode) {
+          print(double.parse(busdetails[1]["latitude"]));
+        }
 
       },
     );
@@ -59,7 +66,7 @@ var busdetails;
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child:mylatitude==null||mylongitude==null?CupertinoActivityIndicator(): FlutterMap(
+        child:mylatitude==null||mylongitude==null?const CupertinoActivityIndicator(): FlutterMap(
           mapController: mapController,
           options: MapOptions(
             interactiveFlags: InteractiveFlag.drag |
@@ -112,7 +119,7 @@ var busdetails;
               color: Colors.white,
               height: busdetails==null?0:busdetails.length*65.0,
               width: 200,
-              padding: EdgeInsets.all(15.0),
+              padding: const EdgeInsets.all(15.0),
               child: Column(
                 children: List.generate(busdetails==null?0:busdetails!.length, (index){
                   final birthday = DateTime.parse(busdetails[index]["lastupdatetime"]);
@@ -141,7 +148,7 @@ var busdetails;
                     setState(() {
                       buslistshow = false;
                     });
-              }, icon: Icon(Icons.arrow_left,size: 40,color: Colors.green,))),
+              }, icon: const Icon(Icons.arrow_left,size: 40,color: Colors.green,))),
             ),
             Visibility(
               visible: !buslistshow,
@@ -152,7 +159,7 @@ var busdetails;
                     setState(() {
                       buslistshow = true;
                     });
-                  }, icon: Icon(Icons.arrow_right,size: 40,color: Colors.green,))),
+                  }, icon: const Icon(Icons.arrow_right,size: 40,color: Colors.green,))),
             ),
             Visibility(
               visible: driveinfoshwo,
@@ -168,7 +175,7 @@ var busdetails;
                           radius: 40,
                           backgroundImage: NetworkImage(busdetails[index]["photo"]),),
                         Text(busdetails[index]["name"]),
-                        SizedBox(height: 5,),
+                        const SizedBox(height: 5,),
                         Text(busdetails[index]["phone"]),
                       ],
                     ),
@@ -191,7 +198,7 @@ var busdetails;
                 right: 20,
                 child: IconButton(onPressed: () {
                   mapController.move(LatLng(mylatitude!, mylongitude!), 18.0);
-            }, icon: Icon(Icons.location_searching,size: 40,)))
+            }, icon: const Icon(Icons.location_searching,size: 40,)))
           ]),
       ),
     );

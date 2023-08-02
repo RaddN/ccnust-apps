@@ -1,4 +1,5 @@
-import 'package:flutter/cupertino.dart';
+// ignore_for_file: non_constant_identifier_names
+
 import 'package:flutter/material.dart';
 
 class CoursesPage extends StatefulWidget {
@@ -19,11 +20,11 @@ class _CoursesPageState extends State<CoursesPage> {
       drawer: widget.OurDrawer,
       body: ListView(
         children: [
-          SizedBox(height: 10,),
+          const SizedBox(height: 10,),
           Center(child: Text("B.SC IN COMPUTER SCIENCE & ENGINEERING (CSE) | 3RD SEMESTER (CSE)",style: bluetextcolor),),
-          SizedBox(height: 5,),
-          Divider(),
-          SizedBox(height: 5,),
+          const SizedBox(height: 5,),
+          const Divider(),
+          const SizedBox(height: 5,),
           Table(
             border: TableBorder.all(color: Colors.black26),
             columnWidths: const <int, TableColumnWidth>{
@@ -38,25 +39,25 @@ class _CoursesPageState extends State<CoursesPage> {
                 children: <Widget>[
                   Container(alignment: Alignment.center,
                     padding: const EdgeInsets.all(8.0),
-                    color: Color.fromRGBO(237,243,244,1),
+                    color: const Color.fromRGBO(237,243,244,1),
                     child: Text("S.N.",style: bluetextcolor,),),
                   Container(
                     padding: const EdgeInsets.all(8.0),
                     alignment: Alignment.center,
+                    color: const Color.fromRGBO(237,243,244,1),
                     child: Text("COURSE TITLE",style: bluetextcolor,),
-                    color: Color.fromRGBO(237,243,244,1),
                   ),
                   Container(
                     padding: const EdgeInsets.all(8.0),
                     alignment: Alignment.center,
+                    color: const Color.fromRGBO(237,243,244,1),
                     child: Text("MARKING",style: bluetextcolor,),
-                    color: Color.fromRGBO(237,243,244,1),
                   ),
                   Container(
                     padding: const EdgeInsets.all(8.0),
                     alignment: Alignment.center,
+                    color: const Color.fromRGBO(237,243,244,1),
                     child: Text("INFO",style: bluetextcolor,),
-                    color: Color.fromRGBO(237,243,244,1),
                   ),
                 ],
 
@@ -107,7 +108,7 @@ class _CoursesPageState extends State<CoursesPage> {
     );
   }
   TextStyle get bluetextcolor {
-    return TextStyle(
+    return const TextStyle(
         color: Color(-12951921),
       fontWeight: FontWeight.bold
     );

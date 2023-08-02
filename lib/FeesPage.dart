@@ -1,6 +1,9 @@
+// ignore_for_file: non_constant_identifier_names
+
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 class FeesPage extends StatefulWidget {
+  const FeesPage({super.key});
+
 
   @override
   State<FeesPage> createState() => _FeesPageState();
@@ -12,11 +15,11 @@ class _FeesPageState extends State<FeesPage> {
     return Scaffold(
       body: ListView(
         children: [
-          SizedBox(height: 10,),
+          const SizedBox(height: 10,),
           Center(child: Text("Payment History",style: bluetextcolor(fontsize: 20.0)),),
-          SizedBox(height: 5,),
-          Divider(),
-          SizedBox(height: 5,),
+          const SizedBox(height: 5,),
+          const Divider(),
+          const SizedBox(height: 5,),
           Table(
             border: TableBorder.all(color: Colors.black26),
             defaultVerticalAlignment: TableCellVerticalAlignment.middle,
@@ -25,19 +28,19 @@ class _FeesPageState extends State<FeesPage> {
                 children: <Widget>[
                   Container(alignment: Alignment.center,
                     padding: const EdgeInsets.all(8.0),
-                    color: Color.fromRGBO(237,243,244,1),
+                    color: const Color.fromRGBO(237,243,244,1),
                     child: Text("Semester/Section",style: bluetextcolor(fontsize: 16.0),),),
                   Container(
                     padding: const EdgeInsets.all(8.0),
                     alignment: Alignment.center,
+                    color: const Color.fromRGBO(237,243,244,1),
                     child: Text("Paid",style: bluetextcolor(fontsize: 16.0),),
-                    color: Color.fromRGBO(237,243,244,1),
                   ),
                   Container(
                     padding: const EdgeInsets.all(8.0),
                     alignment: Alignment.center,
+                    color: const Color.fromRGBO(237,243,244,1),
                     child: Text("Remark",style: bluetextcolor(fontsize: 16.0),),
-                    color: Color.fromRGBO(237,243,244,1),
                   ),
                 ],
 
@@ -57,20 +60,20 @@ class _FeesPageState extends State<FeesPage> {
                   Container(alignment: Alignment.center,
                     padding: const EdgeInsets.all(8.0),
                     color: Colors.redAccent,
-                    child: Text("Total",style: TextStyle(
+                    child: const Text("Total",style: TextStyle(
                       color: Colors.white
                     ),),),
                   Container(
                     padding: const EdgeInsets.all(8.0),
                     alignment: Alignment.center,
+                    color: const Color.fromRGBO(237,243,244,1),
                     child: Text("66500",style: bluetextcolor(fontsize: 16.0),),
-                    color: Color.fromRGBO(237,243,244,1),
                   ),
                   Container(
                     padding: const EdgeInsets.all(8.0),
                     alignment: Alignment.center,
+                    color: const Color.fromRGBO(237,243,244,1),
                     child: Text("Remark",style: bluetextcolor(fontsize: 16.0),),
-                    color: Color.fromRGBO(237,243,244,1),
                   ),
                 ],
 
@@ -86,14 +89,12 @@ class _FeesPageState extends State<FeesPage> {
     return TableRow(
       children: <Widget>[
         TableCell(
-            verticalAlignment: TableCellVerticalAlignment.middle,
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: Text(frstContent),
             )
         ),
         TableCell(
-            verticalAlignment: TableCellVerticalAlignment.middle,
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: Text(SecondConter),
@@ -102,7 +103,6 @@ class _FeesPageState extends State<FeesPage> {
         Padding(
           padding: const EdgeInsets.all(8.0),
           child: TableCell(
-              verticalAlignment: TableCellVerticalAlignment.middle,
               child: Text(thirdContent)
           ),)
       ],
@@ -111,7 +111,7 @@ class _FeesPageState extends State<FeesPage> {
   }
   TextStyle bluetextcolor({fontsize}) {
     return TextStyle(
-        color: Color(-12951921),
+        color: const Color(-12951921),
       fontWeight: FontWeight.bold,
       fontSize: fontsize
     );

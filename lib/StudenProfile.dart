@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
+// ignore_for_file: file_names, non_constant_identifier_names, duplicate_ignore
+import 'package:flutter/material.dart' show Alignment, AppBar, AssetImage, Border, BorderRadius, BoxDecoration, BuildContext, Center, Color, Colors, Column, Container, CrossAxisAlignment, DataCell, DataColumn, DataRow, DataTable, DecorationImage, DefaultTabController, EdgeInsets, FlexColumnWidth, FontWeight, Icon, IconThemeData, Icons, IntrinsicColumnWidth, Key, ListView, MainAxisAlignment, Padding, Positioned, Scaffold, SizedBox, Stack, State, StatefulWidget, Tab, TabBar, TabBarView, Table, TableBorder, TableCell, TableCellVerticalAlignment, TableColumnWidth, TableRow, Text, TextStyle, Widget;
 class StudentProfile extends StatefulWidget {
   const StudentProfile({Key? key}) : super(key: key);
 
@@ -8,6 +8,7 @@ class StudentProfile extends StatefulWidget {
 }
 
 class _StudentProfileState extends State<StudentProfile> {
+  // ignore: non_constant_identifier_names
   List AcademicInfo =["Institution","Board/Training","Pass Year","Symbol Number","Percentage","Division / Grade","Major Subject","Remark"];
   List sscInfo = ["SSC","COMILLA","2017","","","4.05","SCIENCE",""];
   @override
@@ -17,7 +18,7 @@ class _StudentProfileState extends State<StudentProfile> {
       length: 5,
       child: Scaffold(
         appBar: AppBar(
-          iconTheme: IconThemeData(color: Colors.white),
+          iconTheme: const IconThemeData(color: Colors.white),
         ),
         body: ListView(
           children: [
@@ -35,7 +36,7 @@ class _StudentProfileState extends State<StudentProfile> {
                       height: 140,
                       decoration: BoxDecoration(
                           color: Colors.white,
-                          image: DecorationImage(image:AssetImage("assets/mypic.jpg")),
+                          image: const DecorationImage(image:AssetImage("assets/mypic.jpg")),
                           border: Border.all(color: Colors.white,),
                           borderRadius: BorderRadius.circular(100)
                       ),
@@ -46,7 +47,7 @@ class _StudentProfileState extends State<StudentProfile> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
+                      children: const [
                         Text("RAIHAN HOSSAIN",style: TextStyle(
                         color: Colors.white,
                         fontSize: 18,
@@ -66,7 +67,7 @@ class _StudentProfileState extends State<StudentProfile> {
 
               ],
             ),
-            TabBar( unselectedLabelColor: Colors.black26,
+            const TabBar( unselectedLabelColor: Colors.black26,
                 automaticIndicatorColorAdjustment: true,
                 isScrollable: true,
                 tabs: [
@@ -96,8 +97,8 @@ class _StudentProfileState extends State<StudentProfile> {
                     Center(
                       child: Column(
                         children: [
-                          SizedBox(height: 10,),
-                          Text("REGISTRATION DETAIL",style: TextStyle(
+                          const SizedBox(height: 10,),
+                          const Text("REGISTRATION DETAIL",style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 20
                           ),),
@@ -131,7 +132,7 @@ class _StudentProfileState extends State<StudentProfile> {
                     Center(
                       child: DataTable(
                         columnSpacing: 200,
-                          columns: [
+                          columns: const [
                             DataColumn(label: Text("")),
                             DataColumn(label: Text("")),
                           ],
@@ -142,11 +143,11 @@ class _StudentProfileState extends State<StudentProfile> {
                     ),),
                   ],
                 ),
-                Center(
+                const Center(
                   child: Text("It's rainy here"),
-                ),Center(
+                ),const Center(
                   child: Text("It's sunny  here"),
-                ),Center(
+                ),const Center(
                   child: Text("It's sunny  here"),
                 ),
               ]),
@@ -162,10 +163,9 @@ class _StudentProfileState extends State<StudentProfile> {
                             children: <Widget>[
                               Container(alignment: Alignment.centerRight,
                                 padding: const EdgeInsets.all(8.0),
-                                color: Color.fromRGBO(237,243,244,1),
+                                color: const Color.fromRGBO(237,243,244,1),
                                 child: Text(FirstTitle,style: bluetextcolor,),),
                               TableCell(
-                                verticalAlignment: TableCellVerticalAlignment.middle,
                                 child: Padding(
                                   padding: const EdgeInsets.all(8.0),
                                   child: Text(frstContent),
@@ -174,13 +174,12 @@ class _StudentProfileState extends State<StudentProfile> {
                               Container(
                                 padding: const EdgeInsets.all(8.0),
                                 alignment: Alignment.centerRight,
+                                color: const Color.fromRGBO(237,243,244,1),
                                 child: Text(SecondTitle,style: bluetextcolor,),
-                                color: Color.fromRGBO(237,243,244,1),
                               ),
                               Padding(
                                 padding: const EdgeInsets.all(8.0),
                                 child: TableCell(
-                                  verticalAlignment: TableCellVerticalAlignment.middle,
                                   child: Text(SecondConter)
                               ),)
                             ],
@@ -189,7 +188,7 @@ class _StudentProfileState extends State<StudentProfile> {
   }
 
   TextStyle get bluetextcolor {
-    return TextStyle(
+    return const TextStyle(
                                   color: Color(-12951921)
                                 );
   }
