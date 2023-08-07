@@ -17,6 +17,7 @@ import 'package:geolocator/geolocator.dart';
 //pages import
 import 'FeesPage.dart';
 import 'StudenProfile.dart';
+import 'blankscreen.dart';
 import 'mgdbHelper/cookie_check.dart';
 import 'mgdbHelper/mongodb.dart';
 import 'paymentpage.dart';
@@ -405,12 +406,12 @@ class _HomePageState extends State<HomePage> {
                   ),
                   buildListTile(text: "Pay Fee",icon: Icons.attach_money,Ontap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => PaymentPage(OurAppBar: OurAppBar(context),OurDrawer: OurDrawer(context,myEmail), email: myEmail,),),),),
                   buildListTile(text: "Fees",icon: Icons.calculate,Ontap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const HomePage(tabbarpos: 2),))),
-                  buildListTile(text: "Library",icon: Icons.menu_book_rounded,Ontap:() => Navigator.push(context, MaterialPageRoute(builder: (context) => PaymentPage(OurAppBar: OurAppBar(context),OurDrawer: OurDrawer(context,myEmail), email: myEmail,),),)),
-                  buildListTile(text: "Attendance",icon: Icons.calendar_month_rounded,Ontap:() => Navigator.push(context, MaterialPageRoute(builder: (context) => PaymentPage(OurAppBar: OurAppBar(context),OurDrawer: OurDrawer(context,myEmail), email: myEmail,),),),),
-                  buildListTile(text: "Hostels",icon: Icons.bed_sharp,Ontap:() => Navigator.push(context, MaterialPageRoute(builder: (context) => PaymentPage(OurAppBar: OurAppBar(context),OurDrawer: OurDrawer(context,myEmail), email: myEmail,),),),),
+                  buildListTile(text: "Library",icon: Icons.menu_book_rounded,Ontap:() => Navigator.push(context, MaterialPageRoute(builder: (context) => BlankScreen(OurAppBar: OurAppBar(context),OurDrawer: OurDrawer(context,myEmail),),),)),
+                  buildListTile(text: "Attendance",icon: Icons.calendar_month_rounded,Ontap:() => Navigator.push(context, MaterialPageRoute(builder: (context) => BlankScreen(OurAppBar: OurAppBar(context),OurDrawer: OurDrawer(context,myEmail),),),),),
+                  buildListTile(text: "Hostels",icon: Icons.bed_sharp,Ontap:() => Navigator.push(context, MaterialPageRoute(builder: (context) => BlankScreen(OurAppBar: OurAppBar(context),OurDrawer: OurDrawer(context,myEmail),),),),),
                   buildListTile(text: "Transport",icon: Icons.car_crash_outlined,Ontap:() => Navigator.push(context, MaterialPageRoute(builder: (context) => const HomePage(tabbarpos: 1))),),
                   buildListTile(text: "Course",icon: Icons.newspaper_sharp,Ontap:() => Navigator.push(context, MaterialPageRoute(builder: (context) => CoursesPage(OurAppBar: OurAppBar(context),OurDrawer: OurDrawer(context,myEmail),),),),),
-                  buildListTile(text: "Exam",icon: Icons.add_chart,Ontap:() => Navigator.push(context, MaterialPageRoute(builder: (context) => PaymentPage(OurAppBar: OurAppBar(context),OurDrawer: OurDrawer(context,myEmail), email: myEmail,),),),),
+                  buildListTile(text: "Exam",icon: Icons.add_chart,Ontap:() => Navigator.push(context, MaterialPageRoute(builder: (context) => BlankScreen(OurAppBar: OurAppBar(context),OurDrawer: OurDrawer(context,myEmail),),),),),
                   buildListTile(text: "Logout",icon: Icons.logout,hoverColor: Colors.red,Ontap:() async{
                     final SharedPreferences prefs = await SharedPreferences.getInstance();
                     await prefs.remove('token');

@@ -1,6 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:ccnust/homepage.dart';
+import 'package:easy_splash_screen/easy_splash_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -13,10 +14,10 @@ import 'mgdbHelper/mongodb.dart';
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
-  bool result = await InternetConnectionChecker().hasConnection;
-  if(result) {
-    await MongoDatabase.connect();
-  }
+  // bool result = await InternetConnectionChecker().hasConnection;
+  // if(result) {
+  //   await MongoDatabase.connect();
+  // }
   runApp(const MyApp());
 }
 
@@ -32,9 +33,63 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.lightBlue,
       ),
-      home: const MyHomePage(title: 'CCNUST'),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => SplashPage(),
+        // '/': (context) => SplashFuturePage(),
+        '/home': (context) => MyHomePage(title: 'CCNUST'),
+      },
     );
   }
+}
+class SplashPage extends StatefulWidget {
+  SplashPage({Key? key}) : super(key: key);
+
+  @override
+  _SplashPageState createState() => _SplashPageState();
+}
+
+class _SplashPageState extends State<SplashPage> {
+  bool loggedIn = false;
+   checkInternet() async {
+  bool result = await InternetConnectionChecker().hasConnection;
+  if(!result){
+  _showSnackbar("No internet Connection");
+  }
+  else{
+    await MongoDatabase.connect();
+    getMyEmail().then((tokenData) {
+      if (tokenData != null) {
+        MongoDatabase.loggedInCheck(tokenData.first).then((value) {
+          setState(() {
+            loggedIn = true;
+          });
+        });
+      }
+    });
+  }
+}
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    checkInternet();
+
+  }
+  @override
+  Widget build(BuildContext context) {
+    return EasySplashScreen(
+      logo: Image.asset(
+          'assets/ccnfulllogo.jpg'),
+      logoWidth: 200,
+      showLoader: true,
+      navigator:loggedIn?HomePage(tabbarpos: 0): MyHomePage(title: 'CCNUST'),
+      durationInSeconds: 3 ,
+    );
+  }
+  void _showSnackbar(String message) => ScaffoldMessenger.of(context)
+    ..hideCurrentSnackBar()
+    ..showSnackBar(SnackBar(content: Text(message)));
 }
 
 class MyHomePage extends StatefulWidget {
