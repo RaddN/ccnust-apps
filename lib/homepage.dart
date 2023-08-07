@@ -46,11 +46,15 @@ class _HomePageState extends State<HomePage> {
     _timer = Timer.periodic(
       oneSec,
           (Timer timer) async{
-        print("Location function");
+        if (kDebugMode) {
+          print("Location function");
+        }
         // Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
         LocationData? position =!Platform.isWindows? await getMyPosition():null;
         Position? position2 =Platform.isWindows? await getMyPosition2():null;
-        print("Location function 2");
+        if (kDebugMode) {
+          print("Location function 2");
+        }
 
         bool result = await InternetConnectionChecker().hasConnection;
         if(result) {
@@ -162,7 +166,7 @@ class _HomePageState extends State<HomePage> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisAlignment: MainAxisAlignment.start,
                       children: [
-                        ListTile(
+                        const ListTile(
 
                           title: Text("Events",style: TextStyle(
                               fontWeight: FontWeight.bold,
@@ -172,75 +176,42 @@ class _HomePageState extends State<HomePage> {
                           horizontalTitleGap: 0,
                         ),
                         Card(
+                          margin: const EdgeInsets.all(15),
                           child: Padding(
                             padding: const EdgeInsets.all(15.0),
-                            child: Row(
+                            child:screenWidth>800? Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Expanded(flex: 3, child: Image.network("https://ccnust.ac.bd/wp-content/uploads/2020/05/296065723_1513844482369146_1907545956486137317_n.jpg")),
-                                SizedBox(width: 10,),
-                                Expanded(
-                                  flex: 6,
-                                  child: Column(
-                                    children: [
-                                      Text("Seminar on Constitution in Princely Era",style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 18
-                                      ),),
-                                      Text("Seminar on Constitution in Princely Era held at CCN-UST yesterday....")
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: children(screenWidth),
+                            ):Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: children(screenWidth),),
                           ),
                         ),
                         Card(
+                          margin: const EdgeInsets.all(15),
                           child: Padding(
                             padding: const EdgeInsets.all(15.0),
-                            child: Row(
+                            child:screenWidth>800? Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Expanded(flex: 3, child: Image.network("https://ccnust.ac.bd/wp-content/uploads/2020/05/296065723_1513844482369146_1907545956486137317_n.jpg")),
-                                SizedBox(width: 10,),
-                                Expanded(
-                                  flex: 6,
-                                  child: Column(
-                                    children: [
-                                      Text("Seminar on Constitution in Princely Era",style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 18
-                                      ),),
-                                      Text("Seminar on Constitution in Princely Era held at CCN-UST yesterday....")
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: children(screenWidth),
+                            ):Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: children(screenWidth),),
                           ),
                         ),
                         Card(
+                          margin: const EdgeInsets.all(15),
                           child: Padding(
                             padding: const EdgeInsets.all(15.0),
-                            child: Row(
+                            child:screenWidth>800? Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Expanded(flex: 3, child: Image.network("https://ccnust.ac.bd/wp-content/uploads/2020/05/296065723_1513844482369146_1907545956486137317_n.jpg")),
-                                SizedBox(width: 10,),
-                                Expanded(
-                                  flex: 6,
-                                  child: Column(
-                                    children: [
-                                      Text("Seminar on Constitution in Princely Era",style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 18
-                                      ),),
-                                      Text("Seminar on Constitution in Princely Era held at CCN-UST yesterday....")
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: children(screenWidth),
+                            ):Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: children(screenWidth),),
                           ),
                         ),
                       ],
@@ -254,7 +225,7 @@ class _HomePageState extends State<HomePage> {
               ///Fee compare
               FeeCompare(),
               ///Events
-              ListTile(
+              const ListTile(
                 title: Text("Events",style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 22
@@ -263,67 +234,78 @@ class _HomePageState extends State<HomePage> {
                 horizontalTitleGap: 0,
                 contentPadding: EdgeInsets.only(left: 15),
               ),
-              Card(
-                margin: EdgeInsets.all(15),
-                child: Padding(
-                  padding: const EdgeInsets.all(15.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Image.network("https://ccnust.ac.bd/wp-content/uploads/2020/05/296065723_1513844482369146_1907545956486137317_n.jpg"),
-                      const SizedBox(height: 5,),
-                      Text("Seminar on Constitution in Princely Era",style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18
-                      ),),
-                      Text("Seminar on Constitution in Princely Era held at CCN-UST yesterday....")
-                    ],
-                  ),
-                ),
-              ),
-                SizedBox(height: 10,),
+    Card(
+      margin: const EdgeInsets.all(15),
+    child: Padding(
+    padding: const EdgeInsets.all(15.0),
+    child:screenWidth>800? Row(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    mainAxisAlignment: MainAxisAlignment.start,
+    children: children(screenWidth),
+    ):Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: children(screenWidth),),
+    ),
+    ),
+                const SizedBox(height: 10,),
                 Card(
-                  margin: EdgeInsets.all(15),
-                  child: Padding(
-                    padding: const EdgeInsets.all(15.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Image.network("https://ccnust.ac.bd/wp-content/uploads/2020/05/296065723_1513844482369146_1907545956486137317_n.jpg"),
-                        const SizedBox(height: 5,),
-                        Text("Seminar on Constitution in Princely Era",style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18
-                        ),),
-                        Text("Seminar on Constitution in Princely Era held at CCN-UST yesterday....")
-                      ],
-                    ),
-                  ),
-                ),
-                SizedBox(height: 10,),
-                Card(
-                  margin: EdgeInsets.all(15),
-                  child: Padding(
-                    padding: const EdgeInsets.all(15.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Image.network("https://ccnust.ac.bd/wp-content/uploads/2020/05/296065723_1513844482369146_1907545956486137317_n.jpg"),
-                        const SizedBox(height: 5,),
-                        Text("Seminar on Constitution in Princely Era",style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18
-                        ),),
-                        Text("Seminar on Constitution in Princely Era held at CCN-UST yesterday....")
-                      ],
-                    ),
-                  ),
-                ),
+                  margin: const EdgeInsets.all(15),
+    child: Padding(
+    padding: const EdgeInsets.all(15.0),
+    child:screenWidth>800? Row(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    mainAxisAlignment: MainAxisAlignment.start,
+    children: children(screenWidth),
+    ):Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: children(screenWidth),),
+    ),
+    ),
+                const SizedBox(height: 10,),
+    Card(
+      margin: const EdgeInsets.all(15),
+    child: Padding(
+    padding: const EdgeInsets.all(15.0),
+    child:screenWidth>800? Row(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    mainAxisAlignment: MainAxisAlignment.start,
+    children: children(screenWidth),
+    ):Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: children(screenWidth),),
+    ),
+    ),
             ],),
-            Divider()
 
           ],
         );
+  }
+
+  List<Widget> children(screenWidth) {
+    var image = Image.network("https://ccnust.ac.bd/wp-content/uploads/2020/05/296065723_1513844482369146_1907545956486137317_n.jpg");
+    var title =const Text("Seminar on Constitution in Princely Era",style: TextStyle(
+        fontWeight: FontWeight.bold,
+        fontSize: 18
+    ),);
+    var subtitle = const Text("Seminar on Constitution in Princely Era held at CCN-UST yesterday....");
+    return [
+      screenWidth>800?Expanded(flex: 3, child:image):image,
+                  const SizedBox(width: 10,height: 10,),
+      if(screenWidth>800)
+                  Expanded(
+                    flex: 6,
+                    child: Column(
+                      children: [
+                        title,
+                        subtitle
+                      ],
+                    ),
+                  ),
+      if(screenWidth<800)
+        title,
+      if(screenWidth<800)
+        subtitle,
+                ];
   }
 
   Column FeeCompare() {
