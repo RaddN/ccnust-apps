@@ -1,9 +1,7 @@
 //packages import
 // ignore_for_file: prefer_typing_uninitialized_variables, no_logic_in_create_state, use_build_context_synchronously, non_constant_identifier_names
-
 import 'dart:async';
-import 'dart:convert';
-import 'package:ccnust/backendhelper.dart';
+import 'dart:io';
 import 'package:ccnust/courses.dart';
 import 'package:ccnust/main.dart';
 import 'package:ccnust/transport.dart';
@@ -12,12 +10,15 @@ import 'package:circular_bottom_navigation/tab_item.dart';
 import 'package:d_chart/d_chart.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart';
+import 'package:internet_connection_checker/internet_connection_checker.dart';
+import 'package:location/location.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:geolocator/geolocator.dart';
 //pages import
 import 'FeesPage.dart';
 import 'StudenProfile.dart';
+import 'mgdbHelper/cookie_check.dart';
+import 'mgdbHelper/mongodb.dart';
 import 'paymentpage.dart';
 import 'package:ccnust/notification.dart';
 import 'package:ccnust/loginPage.dart';
@@ -31,64 +32,67 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int tabbarpos;
+  var myEmail;
+  var userCata;
   _HomePageState(this.tabbarpos);
   double bottomNavBarHeight = 60;
   late CircularBottomNavigationController _navigationController;
   var currentPage = "Dashboard";
-  late Timer _timer;
-
-  void startTimer() {
-    const oneSec = Duration(seconds: 1);
+  ///bus driver location update in every 3 second
+  Timer? _timer;
+  void updateLocation() {
+    const oneSec = Duration(seconds: 3);
+     _timer?.cancel();
     _timer = Timer.periodic(
       oneSec,
           (Timer timer) async{
-            final SharedPreferences prefs = await SharedPreferences.getInstance();
-            String datetime = DateTime.now().toString();
-            Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
-            final response = await post(Uri.parse("${backendurl}newlocation"), body: {
-              "token":prefs.getString('token'),
-              "latitude": position.latitude.toString(),
-              "longitude": position.longitude.toString(),
-              "lastupdatetime": datetime
-            });
-            if (kDebugMode) {
-              print(response.body);
-            }
-            if (kDebugMode) {
-              print(position);
-            }
+        print("Location function");
+        // Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+        LocationData? position =!Platform.isWindows? await getMyPosition():null;
+        Position? position2 =Platform.isWindows? await getMyPosition2():null;
+        print("Location function 2");
+
+        bool result = await InternetConnectionChecker().hasConnection;
+        if(result) {
+          MongoDatabase.updatelocation(Platform.isWindows?position2!.longitude.toString():position!.longitude.toString(),Platform.isWindows? position2!.latitude.toString():position!.latitude.toString(),myEmail);
+        }
+        else{
+          _showSnackbar("No internet Connection");
+        }
+        if (kDebugMode) {
+          print(position);
+        }
       },
     );
   }
 
-  void loggedincheck() async{
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    if (kDebugMode) {
-      print(prefs.getString('token'));
-    }
-    final response = await post(Uri.parse("${backendurl}profile"),body: {
-      "token":prefs.getString('token')
-    });
-    final jsonData = jsonDecode(response.body);
 
-    // print(jsonData);
-    if(jsonData['catagory']=="driver"){
-      startTimer();
-    }
-    if(jsonData['_id']==null){
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginPage(),));
-    }
-  }
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    loggedincheck();
+    getMyEmail().then((value){
+      setState(() {
+        myEmail = value!.first;
+        userCata = value.last;
+      });
+      if(value!.last=="driver") {
+        updateLocation();
+      }
+    });
+    if(myEmail!=null) {
+      MongoDatabase.loggedInCheck(myEmail).then((value) {
+      if(!value){
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginPage(),));
+      }
+    });
+    }
     _navigationController = CircularBottomNavigationController(tabbarpos);
   }
 
   @override
   Widget build(BuildContext context) {
+    var screenWidth = MediaQuery.of(context).size.width;
     List<TabItem> tabItems = List.of([
       TabItem(Icons.home, "Home", Colors.blue, labelStyle: const TextStyle(fontWeight: FontWeight.normal)),
       TabItem(Icons.bus_alert_rounded, "Bus", Colors.blue, labelStyle: const TextStyle(fontWeight: FontWeight.normal)),
@@ -98,35 +102,25 @@ class _HomePageState extends State<HomePage> {
       Widget page;
       switch (tabbarpos) {
         case 0:
-          page = Home();
+          page = Home(screenWidth);
           break;
         case 1:
-          page =const TransportPage();
+          page = TransportPage(userCata: userCata);
           break;
         case 2:
           page = const FeesPage();
           break;
         default:
-          page = Home();
+          page = Home(screenWidth);
           break;
       }
-
-      return GestureDetector(
-        child: Container(
+      return Container(
           child: page
-        ),
-        onTap: () {
-          if (_navigationController.value == tabItems.length - 1) {
-            _navigationController.value = 0;
-          } else {
-            _navigationController.value = _navigationController.value! + 1;
-          }
-        },
-      );
+        );
     }
     return Scaffold(
       appBar: OurAppBar(context),
-      drawer: OurDrawer(context),
+      drawer: OurDrawer(context,myEmail ?? "111121017"),
       bottomNavigationBar: CircularBottomNavigation(
         tabItems,
         selectedPos: tabbarpos,
@@ -152,75 +146,256 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Column Home() {
-    return Column(
+  ListView Home(screenWidth) {
+    return ListView(
           children: [
-            const SizedBox(height: 10,),
-            const Center(child: Text("Fee Compare",style: TextStyle(
-                fontWeight: FontWeight.bold,
-              fontSize: 25
-            ),)),
-            const SizedBox(height: 10,),
-            Center(
-              child:Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    width: 40,
-                    height: 15,
-                     color: Colors.blue,
-                  ),
-                  const SizedBox(width: 5,),
-                  const Text("Paid"),
-                  const SizedBox(width: 15,),
-                   Container(
-                    width: 40,
-                    height: 15,
-                     color: Colors.red,
-                  ),
-                  const SizedBox(width: 5,),
-                  const Text("Due"),
+            screenWidth>800?
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    ///Fee compare
+                    Expanded(flex: 6, child: FeeCompare()),
+                    Expanded(
+                      flex: 4,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        ListTile(
 
-                ],
+                          title: Text("Events",style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 22
+                          ),),
+                          leading: Icon(Icons.event),
+                          horizontalTitleGap: 0,
+                        ),
+                        Card(
+                          child: Padding(
+                            padding: const EdgeInsets.all(15.0),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(flex: 3, child: Image.network("https://ccnust.ac.bd/wp-content/uploads/2020/05/296065723_1513844482369146_1907545956486137317_n.jpg")),
+                                SizedBox(width: 10,),
+                                Expanded(
+                                  flex: 6,
+                                  child: Column(
+                                    children: [
+                                      Text("Seminar on Constitution in Princely Era",style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 18
+                                      ),),
+                                      Text("Seminar on Constitution in Princely Era held at CCN-UST yesterday....")
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        Card(
+                          child: Padding(
+                            padding: const EdgeInsets.all(15.0),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(flex: 3, child: Image.network("https://ccnust.ac.bd/wp-content/uploads/2020/05/296065723_1513844482369146_1907545956486137317_n.jpg")),
+                                SizedBox(width: 10,),
+                                Expanded(
+                                  flex: 6,
+                                  child: Column(
+                                    children: [
+                                      Text("Seminar on Constitution in Princely Era",style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 18
+                                      ),),
+                                      Text("Seminar on Constitution in Princely Era held at CCN-UST yesterday....")
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        Card(
+                          child: Padding(
+                            padding: const EdgeInsets.all(15.0),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(flex: 3, child: Image.network("https://ccnust.ac.bd/wp-content/uploads/2020/05/296065723_1513844482369146_1907545956486137317_n.jpg")),
+                                SizedBox(width: 10,),
+                                Expanded(
+                                  flex: 6,
+                                  child: Column(
+                                    children: [
+                                      Text("Seminar on Constitution in Princely Era",style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 18
+                                      ),),
+                                      Text("Seminar on Constitution in Princely Era held at CCN-UST yesterday....")
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ))
+                  ],)
+                :
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+              ///Fee compare
+              FeeCompare(),
+              ///Events
+              ListTile(
+                title: Text("Events",style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 22
+                ),),
+                leading: Icon(Icons.event),
+                horizontalTitleGap: 0,
+                contentPadding: EdgeInsets.only(left: 15),
               ),
-            ),
-            SizedBox(
-              height: 300,
-              child: DChartPie(
-                labelFontSize: 16,
-                showLabelLine: true,
-                labelLineColor: Colors.black,
-                strokeWidth: 2,
-                labelLinelength: 10,
-                labelLineThickness: 20,
-                labelPadding: 10,
-                labelPosition: PieLabelPosition.auto,
-                animationDuration: const Duration(seconds: 1),
-                data: const [
-                  {'domain': 'paid', 'measure': 42000},
-                  {'domain': 'Due', 'measure': 6500},
+              Card(
+                margin: EdgeInsets.all(15),
+                child: Padding(
+                  padding: const EdgeInsets.all(15.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Image.network("https://ccnust.ac.bd/wp-content/uploads/2020/05/296065723_1513844482369146_1907545956486137317_n.jpg"),
+                      const SizedBox(height: 5,),
+                      Text("Seminar on Constitution in Princely Era",style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18
+                      ),),
+                      Text("Seminar on Constitution in Princely Era held at CCN-UST yesterday....")
+                    ],
+                  ),
+                ),
+              ),
+                SizedBox(height: 10,),
+                Card(
+                  margin: EdgeInsets.all(15),
+                  child: Padding(
+                    padding: const EdgeInsets.all(15.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Image.network("https://ccnust.ac.bd/wp-content/uploads/2020/05/296065723_1513844482369146_1907545956486137317_n.jpg"),
+                        const SizedBox(height: 5,),
+                        Text("Seminar on Constitution in Princely Era",style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18
+                        ),),
+                        Text("Seminar on Constitution in Princely Era held at CCN-UST yesterday....")
+                      ],
+                    ),
+                  ),
+                ),
+                SizedBox(height: 10,),
+                Card(
+                  margin: EdgeInsets.all(15),
+                  child: Padding(
+                    padding: const EdgeInsets.all(15.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Image.network("https://ccnust.ac.bd/wp-content/uploads/2020/05/296065723_1513844482369146_1907545956486137317_n.jpg"),
+                        const SizedBox(height: 5,),
+                        Text("Seminar on Constitution in Princely Era",style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18
+                        ),),
+                        Text("Seminar on Constitution in Princely Era held at CCN-UST yesterday....")
+                      ],
+                    ),
+                  ),
+                ),
+            ],),
+            Divider()
 
-                ],
-                fillColor: (pieData, index) {
-                  switch (pieData['domain']) {
-                    case 'paid':
-                      return Colors.blue;
-                    case 'Warm':
-                      return Colors.orange;
-                    default:
-                      return Colors.red;
-                  }
-                },
-                donutWidth: 60,
-                labelColor: Colors.white,
-                animate: true,
-              ),
-            ),
           ],
         );
   }
 
-  Drawer OurDrawer(BuildContext context) {
+  Column FeeCompare() {
+    return Column(
+            children: [
+              const SizedBox(height: 10,),
+              const Center(child: Text("Fee Compare",style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                fontSize: 25
+              ),)),
+              const SizedBox(height: 10,),
+              Center(
+                child:Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 15,
+                       color: Colors.blue,
+                    ),
+                    const SizedBox(width: 5,),
+                    const Text("Paid"),
+                    const SizedBox(width: 15,),
+                     Container(
+                      width: 40,
+                      height: 15,
+                       color: Colors.red,
+                    ),
+                    const SizedBox(width: 5,),
+                    const Text("Due"),
+
+                  ],
+                ),
+              ),
+              SizedBox(
+                height: 300,
+                child: DChartPie(
+                  labelFontSize: 16,
+                  showLabelLine: true,
+                  labelLineColor: Colors.black,
+                  strokeWidth: 2,
+                  labelLinelength: 10,
+                  labelLineThickness: 20,
+                  labelPadding: 10,
+
+                  labelPosition: PieLabelPosition.auto,
+                  animationDuration: const Duration(seconds: 1),
+                  data: const [
+                    {'domain': 'paid', 'measure': 42000},
+                    {'domain': 'Due', 'measure': 6500},
+
+                  ],
+                  fillColor: (pieData, index) {
+                    switch (pieData['domain']) {
+                      case 'paid':
+                        return Colors.blue;
+                      case 'Warm':
+                        return Colors.orange;
+                      default:
+                        return Colors.red;
+                    }
+                  },
+                  donutWidth: 60,
+                  labelColor: Colors.white,
+                  animate: true,
+                ),
+              ),
+            ],
+          );
+  }
+
+  Drawer OurDrawer(BuildContext context,email) {
     return Drawer(
       child: Padding(
         padding: const EdgeInsets.only(bottom: 8.0),
@@ -233,7 +408,7 @@ class _HomePageState extends State<HomePage> {
               child:UserAccountsDrawerHeader(accountName: const Text("Raihan Hossain",style: TextStyle(
         color: Colors.white,
                 fontWeight: FontWeight.bold
-        ),), accountEmail: const Text("111121017",style: TextStyle(
+        ),), accountEmail: Text(email,style: const TextStyle(
                   color: Colors.white
               ),),onDetailsPressed: () {
                 Navigator.pop(context);
@@ -246,18 +421,24 @@ class _HomePageState extends State<HomePage> {
                 children: [
                   buildListTile(text: "Dashboard",icon: Icons.dashboard_customize,Ontap: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const HomePage(tabbarpos: 0),),)
                   ),
-                  buildListTile(text: "Pay Fee",icon: Icons.attach_money,Ontap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => PaymentPage(OurAppBar: OurAppBar(context),OurDrawer: OurDrawer(context),),),),),
+                  buildListTile(text: "Pay Fee",icon: Icons.attach_money,Ontap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => PaymentPage(OurAppBar: OurAppBar(context),OurDrawer: OurDrawer(context,myEmail), email: myEmail,),),),),
                   buildListTile(text: "Fees",icon: Icons.calculate,Ontap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const HomePage(tabbarpos: 2),))),
-                  buildListTile(text: "Library",icon: Icons.menu_book_rounded,Ontap:() => Navigator.push(context, MaterialPageRoute(builder: (context) => PaymentPage(OurAppBar: OurAppBar(context),OurDrawer: OurDrawer(context),),),)),
-                  buildListTile(text: "Attendance",icon: Icons.calendar_month_rounded,Ontap:() => Navigator.push(context, MaterialPageRoute(builder: (context) => PaymentPage(OurAppBar: OurAppBar(context),OurDrawer: OurDrawer(context),),),),),
-                  buildListTile(text: "Hostels",icon: Icons.bed_sharp,Ontap:() => Navigator.push(context, MaterialPageRoute(builder: (context) => PaymentPage(OurAppBar: OurAppBar(context),OurDrawer: OurDrawer(context),),),),),
+                  buildListTile(text: "Library",icon: Icons.menu_book_rounded,Ontap:() => Navigator.push(context, MaterialPageRoute(builder: (context) => PaymentPage(OurAppBar: OurAppBar(context),OurDrawer: OurDrawer(context,myEmail), email: myEmail,),),)),
+                  buildListTile(text: "Attendance",icon: Icons.calendar_month_rounded,Ontap:() => Navigator.push(context, MaterialPageRoute(builder: (context) => PaymentPage(OurAppBar: OurAppBar(context),OurDrawer: OurDrawer(context,myEmail), email: myEmail,),),),),
+                  buildListTile(text: "Hostels",icon: Icons.bed_sharp,Ontap:() => Navigator.push(context, MaterialPageRoute(builder: (context) => PaymentPage(OurAppBar: OurAppBar(context),OurDrawer: OurDrawer(context,myEmail), email: myEmail,),),),),
                   buildListTile(text: "Transport",icon: Icons.car_crash_outlined,Ontap:() => Navigator.push(context, MaterialPageRoute(builder: (context) => const HomePage(tabbarpos: 1))),),
-                  buildListTile(text: "Course",icon: Icons.newspaper_sharp,Ontap:() => Navigator.push(context, MaterialPageRoute(builder: (context) => CoursesPage(OurAppBar: OurAppBar(context),OurDrawer: OurDrawer(context),),),),),
-                  buildListTile(text: "Exam",icon: Icons.add_chart,Ontap:() => Navigator.push(context, MaterialPageRoute(builder: (context) => PaymentPage(OurAppBar: OurAppBar(context),OurDrawer: OurDrawer(context),),),),),
+                  buildListTile(text: "Course",icon: Icons.newspaper_sharp,Ontap:() => Navigator.push(context, MaterialPageRoute(builder: (context) => CoursesPage(OurAppBar: OurAppBar(context),OurDrawer: OurDrawer(context,myEmail),),),),),
+                  buildListTile(text: "Exam",icon: Icons.add_chart,Ontap:() => Navigator.push(context, MaterialPageRoute(builder: (context) => PaymentPage(OurAppBar: OurAppBar(context),OurDrawer: OurDrawer(context,myEmail), email: myEmail,),),),),
                   buildListTile(text: "Logout",icon: Icons.logout,hoverColor: Colors.red,Ontap:() async{
                     final SharedPreferences prefs = await SharedPreferences.getInstance();
                     await prefs.remove('token');
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => const MyHomePage(title: 'Flutter Demo Home Page'),),);
+                    if(userCata=="driver") {
+                      _timer?.cancel();
+                      setState(() {
+                        _timer = null;
+                      });
+                    }
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => const MyHomePage(title: 'CCN University Of Science & Technology'),),);
                   },),
 ],
 ),
@@ -284,7 +465,7 @@ class _HomePageState extends State<HomePage> {
             children: [
               IconButton(onPressed: () {
                 currentPage == "Notification"?null:
-                Navigator.push(context, MaterialPageRoute(builder: (context) => NotificationPage(OurAppBar: OurAppBar(context),OurDrawer: OurDrawer(context)),));
+                Navigator.push(context, MaterialPageRoute(builder: (context) => NotificationPage(OurAppBar: OurAppBar(context),OurDrawer: OurDrawer(context,myEmail)),));
                 setState(() {
                   currentPage = "Notification";
                 });
@@ -330,7 +511,7 @@ class _HomePageState extends State<HomePage> {
               });
             }},
             hoverColor:hoverColor ?? Colors.lightBlue,
-
+      focusColor: hoverColor ?? Colors.lightBlue,
             title: Text(text),
             leading: Icon(icon),
           );
@@ -339,7 +520,14 @@ class _HomePageState extends State<HomePage> {
   void dispose() {
     super.dispose();
     _navigationController.dispose();
-    _timer.cancel();
+    if(userCata=="driver") {
+      _timer?.cancel();
+      setState(() {
+        _timer = null;
+      });
+    }
   }
-
+void _showSnackbar(String message) => ScaffoldMessenger.of(context)
+  ..hideCurrentSnackBar()
+  ..showSnackBar(SnackBar(content: Text(message)));
 }

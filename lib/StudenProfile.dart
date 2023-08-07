@@ -29,8 +29,8 @@ class _StudentProfileState extends State<StudentProfile> {
                   color: Colors.blue,
                 ),
                 Positioned(
-                    bottom: 0, 
-                    left: 0,
+                    bottom: 10,
+                    left: 10,
                     child: Container(
                       width: 140,
                       height: 140,
@@ -42,8 +42,8 @@ class _StudentProfileState extends State<StudentProfile> {
                       ),
                 )),
                 Positioned(
-                  top: 90,
-                    left: 150,
+                  top: 80,
+                    left: 160,
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -119,6 +119,7 @@ class _StudentProfileState extends State<StudentProfile> {
                                 OurTableRow(FirstTitle: "DOB :",frstContent: "06/06/2001",SecondTitle: "Gender :",SecondConter: "MALE"),
                                 OurTableRow(FirstTitle: "Nationality :",frstContent: "BANGLADESHI",SecondTitle: "Mother Tongue :",SecondConter: "BANGLA"),
                                 OurTableRow(FirstTitle: "E-mail :",frstContent: "cse111121017@ccnust.edu.bd",SecondTitle: "Mobile No :",SecondConter: "01863995432"),
+
                               ],
                             ),
                           )
@@ -177,11 +178,12 @@ class _StudentProfileState extends State<StudentProfile> {
                                 color: const Color.fromRGBO(237,243,244,1),
                                 child: Text(SecondTitle,style: bluetextcolor,),
                               ),
-                              Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: TableCell(
-                                  child: Text(SecondConter)
-                              ),)
+                              TableCell(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text(SecondConter),
+                                )
+                              )
                             ],
 
                           );

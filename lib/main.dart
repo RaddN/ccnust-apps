@@ -1,18 +1,22 @@
 // ignore_for_file: use_build_context_synchronously
 
-import 'dart:convert';
 import 'package:ccnust/homepage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'backendhelper.dart';
+import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'loginPage.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-void main() {
+import 'mgdbHelper/cookie_check.dart';
+import 'mgdbHelper/mongodb.dart';
+
+void main() async{
   WidgetsFlutterBinding.ensureInitialized();
+  bool result = await InternetConnectionChecker().hasConnection;
+  if(result) {
+    await MongoDatabase.connect();
+  }
   runApp(const MyApp());
 }
 
@@ -23,12 +27,12 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'CCNUST',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.lightBlue,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const MyHomePage(title: 'CCNUST'),
     );
   }
 }
@@ -43,20 +47,11 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  void loggedincheck() async{
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    final response = await post(Uri.parse("${backendurl}profile"),body: {
-      "token":prefs.getString('token')
-    });
-    final jsonData = jsonDecode(response.body);
-    if (kDebugMode) {
-      print(jsonData['_id']);
-    }
-    if(jsonData['_id']!=null){
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const HomePage(tabbarpos: 0),));
-    }
-  }
   Future permissioncheck()async{
+    bool result = await InternetConnectionChecker().hasConnection;
+    if(!result){
+      _showSnackbar("No internet Connection");
+    }
     Map<Permission, PermissionStatus> statuses = await [
       Permission.location,
     ].request();
@@ -64,12 +59,21 @@ class _MyHomePageState extends State<MyHomePage> {
       print(statuses[Permission.location]);
     }
     }
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     permissioncheck();
-    loggedincheck();
+    getMyEmail().then((tokenData){
+      if(tokenData!=null) {
+        MongoDatabase.loggedInCheck(tokenData.first).then((value) {
+      if(value){
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const HomePage(tabbarpos: 0),));
+      }
+    });
+      }
+    });
   }
   @override
   Widget build(BuildContext context) {
@@ -103,12 +107,6 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
               const SizedBox(height: 15,),
               ElevatedButton(onPressed: () async{
-                Map<Permission, PermissionStatus> statuses = await [
-                Permission.location,
-                ].request();
-                if (kDebugMode) {
-                  print(statuses[Permission.location]);
-                }
                 permissioncheck();
                 Navigator.push(context, CupertinoPageRoute(builder: (context) => const LoginPage(),));
               },style: ButtonStyle(
@@ -133,4 +131,7 @@ class _MyHomePageState extends State<MyHomePage> {
       // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
+  void _showSnackbar(String message) => ScaffoldMessenger.of(context)
+    ..hideCurrentSnackBar()
+    ..showSnackBar(SnackBar(content: Text(message)));
 }

@@ -90,12 +90,12 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "com.ccnust.ims" "\0"
-            VALUE "FileDescription", "ccnust" "\0"
+            VALUE "FileDescription", "CCNUST" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "ccnust" "\0"
+            VALUE "InternalName", "CCNUST" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2022 com.ccnust.ims. All rights reserved." "\0"
             VALUE "OriginalFilename", "ccnust.exe" "\0"
-            VALUE "ProductName", "ccnust" "\0"
+            VALUE "ProductName", "CCNUST" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

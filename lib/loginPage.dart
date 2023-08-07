@@ -1,13 +1,7 @@
 // ignore_for_file: file_names, use_build_context_synchronously
-
-import 'dart:convert';
-import 'package:ccnust/backendhelper.dart';
-import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart';
-
 import 'homepage.dart';
+import 'mgdbHelper/mongodb.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -24,49 +18,22 @@ class _LoginPageState extends State<LoginPage> {
   bool loginsuccess = false;
   var alert = "";
   void logincontroll({email,password}) async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    final response = await post(Uri.parse("${backendurl}login"), body: {
-      "email": email,
-      "password": password
-    });
-    final jsonData = jsonDecode(response.body);
-    if (kDebugMode) {
-      print(jsonData['alert']);
-    }
-    if (jsonData['alert'] == "Successfully logged in") {
-      await prefs.setString('token', jsonData['token']);
+  MongoDatabase.login(email, password).then((value) {
+    if(value == "Successfully logged in"){
       Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const HomePage(tabbarpos: 0),));
-      if (kDebugMode) {
-        print(prefs.getString('token'));
-      }
     }
-    else {
+    else{
       setState(() {
-        alert = jsonData['alert'];
-      });
+            alert = value.toString();
+          });
     }
-  }
-  void loggedincheck() async{
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    if (kDebugMode) {
-      print(prefs.getString('token'));
-    }
-    final response = await post(Uri.parse("${backendurl}profile"),body: {
-      "token":prefs.getString('token')
-    });
-    final jsonData = jsonDecode(response.body);
-    if (kDebugMode) {
-      print(jsonData['_id']);
-    }
-    if(jsonData['_id']!=null){
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const HomePage(tabbarpos: 0),));
-    }
+  });
+
   }
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    loggedincheck();
   }
   @override
   void dispose() {
